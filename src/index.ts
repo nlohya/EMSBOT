@@ -55,11 +55,15 @@ client.on("messageCreate", async (message: Message<boolean>) => {
 
     if (settings == null || !settings.setupDone) return;
 
-    if (
-      !message.guild?.roles.cache
+    const isAllowed =
+      message.guild?.roles.cache
         .find((r) => r.id === settings.roleAccessId)
-        ?.members.find((m) => m.id === message.author.id)
-    ) {
+        ?.members.find((m) => m.id === message.author.id) ||
+      message.guild?.roles.cache
+        .find((r) => r.id === settings.specialRoleId)
+        ?.members.find((m) => m.id === message.author.id);
+
+    if (!isAllowed) {
       const answer = await message.reply({
         content:
           "Vous n'avez pas la permission de fermer votre ticket, attendez que quelqu'un le fasse pour vous !",
