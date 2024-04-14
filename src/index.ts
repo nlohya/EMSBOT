@@ -72,6 +72,11 @@ client.on("messageCreate", async (message: Message<boolean>) => {
 
     if (!(message.channel as TextChannel).name.includes("__ticket")) return;
 
+    useLogger().info(
+      `User ${message.author.displayName} closed ticket ${
+        (message.channel as TextChannel).name
+      }`
+    );
     await message.channel.delete();
   }
 });
