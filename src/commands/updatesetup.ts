@@ -12,6 +12,13 @@ const data = new SlashCommandBuilder()
   );
 
 async function execute(interaction: CommandInteraction) {
+  if (!interaction.memberPermissions?.has("ManageChannels")) {
+    return interaction.reply({
+      content: "Vous n'avez pas la permission d'éxécuter cette commande",
+      ephemeral: true,
+    });
+  }
+
   const settings = useSettings().load();
   const roleId = interaction.options.get("add-role")?.role?.id!;
 
