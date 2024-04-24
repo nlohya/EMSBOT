@@ -13,6 +13,8 @@ export interface Settings {
   categoryEmployee: string;
 
   roleAccessId: string;
+
+  specialRoleId?: string;
 }
 
 function save(settings: Settings) {
@@ -33,9 +35,26 @@ function load(): Settings | null {
   }
 }
 
+function update(settings: Settings) {
+  try {
+    const setts = JSON.parse(fs.readFileSync("config.cfg", "utf8"));
+
+    Object.keys(settings).forEach((key) => {
+      if (settings[key as keyof Settings] !== setts[key as keyof Settings]) {
+        setts[key as keyof Settings] = settings[key as keyof Settings];
+      }
+    });
+
+    save(setts);
+  } catch (err) {
+    useLogger().error("Error happened while updating settings", "updatecfg");
+  }
+}
+
 export function useSettings() {
   return {
     save,
     load,
+    update,
   };
 }
