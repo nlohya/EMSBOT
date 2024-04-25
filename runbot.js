@@ -1,3 +1,3 @@
 const { execSync } = require("child_process");
 
-execSync("npm run start");
+execSync("/usr/local/bin/npm run start");
