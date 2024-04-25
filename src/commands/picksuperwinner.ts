@@ -21,7 +21,7 @@ const data = new SlashCommandBuilder()
   .addChannelOption((option) =>
     option
       .setName("msg-channel")
-      .setDescription("Channel où se siture le message du giveaway")
+      .setDescription("Channel où se situe le message du giveaway")
       .setRequired(true)
   )
   .addChannelOption((option) =>
