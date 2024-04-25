@@ -6,11 +6,11 @@ import { exit } from "process";
 dotenv.config();
 
 export class Database {
-  private static __instance: Database | null = null;
+  private static _instance: Database | null = null;
 
   private _connection: Connection | undefined;
 
-  constructor() {
+  private constructor() {
     try {
       this._connection = createConnection({
         host: process.env["MSQL_HOST"],
@@ -32,11 +32,11 @@ export class Database {
   }
 
   static instance(): Database {
-    if (this.__instance == null) {
-      this.__instance = new Database();
+    if (this._instance == null) {
+      this._instance = new Database();
     }
 
-    return this.__instance!;
+    return this._instance!;
   }
 
   connection() {
