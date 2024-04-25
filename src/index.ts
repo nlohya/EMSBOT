@@ -8,6 +8,7 @@ import { GatewayIntentBits } from "discord.js";
 import { selectCitizen } from "./select_handlers/select-citizen";
 import { selectEms } from "./select_handlers/select-ems";
 import { useSettings } from "./utils/settings";
+import { Database } from "./database/database";
 
 const client = new Client({
   intents: [
@@ -47,6 +48,7 @@ client.on("messageCreate", async (message: Message<boolean>) => {
     if (!(message.author.id === "619832422766477327")) return;
 
     await deployCommands({ guildId: message.guild?.id! });
+    console.log(Database.instance().connection());
     await message.reply("Reloaded slash commands");
   }
 
