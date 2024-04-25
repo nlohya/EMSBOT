@@ -2,6 +2,7 @@ import { createConnection, type Connection } from "mysql";
 import dotenv from "dotenv";
 import { useLogger } from "../utils/logger";
 import { exit } from "process";
+import { promisify } from "node:util";
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ export class Database {
       useLogger().error(
         `Error happened while connecting to the database : ${
           (err as Error).message
-        }`
+        }`,
       );
       exit();
     }
@@ -43,3 +44,7 @@ export class Database {
     return this._connection;
   }
 }
+
+export const query = promisify(Database.instance().connection()?.query!).bind(
+  Database.instance().connection(),
+);

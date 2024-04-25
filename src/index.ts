@@ -8,7 +8,7 @@ import { GatewayIntentBits } from "discord.js";
 import { selectCitizen } from "./select_handlers/select-citizen";
 import { selectEms } from "./select_handlers/select-ems";
 import { useSettings } from "./utils/settings";
-import { Database } from "./database/database";
+import { Database } from "./database";
 
 const client = new Client({
   intents: [
@@ -32,7 +32,7 @@ client.on("guildCreate", async (guild) => {
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isCommand()) {
     commands[interaction.commandName as keyof typeof commands].execute(
-      interaction
+      interaction,
     );
   } else if (interaction.isAnySelectMenu()) {
     if (interaction.customId === "citizen") {
@@ -81,7 +81,7 @@ client.on("messageCreate", async (message: Message<boolean>) => {
     useLogger().info(
       `User ${message.author.displayName} closed ticket ${
         (message.channel as TextChannel).name
-      }`
+      }`,
     );
     await message.channel.delete();
   }
