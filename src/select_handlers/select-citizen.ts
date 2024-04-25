@@ -1,6 +1,7 @@
 import { AnySelectMenuInteraction, inlineCode } from "discord.js";
 import { useLogger } from "../utils/logger";
 import { useSettings } from "../utils/settings";
+import { query } from "../database";
 
 function reason(str: string) {
   switch (str) {
@@ -24,7 +25,7 @@ function reason(str: string) {
 export const handle = async (interaction: AnySelectMenuInteraction) => {
   useLogger().info(
     `User ${interaction.user.username} opened a citizen ticket, type: ${interaction.values[0]}`,
-    "select-citizen.ts/#5"
+    "select-citizen.ts/#5",
   );
 
   const settings = useSettings().load();
@@ -65,7 +66,7 @@ export const handle = async (interaction: AnySelectMenuInteraction) => {
       content: `<@&${settings.roleAccessId}>, le citoyen <@${
         interaction.user.id
       }> a ouvert un ticket pour la raison suivante : ${reason(
-        interaction.values[0]
+        interaction.values[0],
       )}, utilisez la commande ${inlineCode(".close")} pour fermer le ticket.`,
     });
   } else {
@@ -99,10 +100,14 @@ export const handle = async (interaction: AnySelectMenuInteraction) => {
       }>, le citoyen <@${
         interaction.user.id
       }> a ouvert un ticket pour la raison suivante : ${reason(
-        interaction.values[0]
+        interaction.values[0],
       )}, utilisez la commande ${inlineCode(".close")} pour fermer le ticket.`,
     });
   }
+
+  await query(
+    `INSERT INTO ticket VALUES (null, null, '${interaction.values[0]}', '${interaction.user.id}', 'CITIZEN')`,
+  );
 
   return interaction.reply({
     content: `Votre ticket est ouvert : <#${chanel?.id}>`,

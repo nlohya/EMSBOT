@@ -3,14 +3,9 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from "discord.js";
-import { Database } from "../database/database";
-import { promisify } from "node:util";
+import { query } from "../database";
 
 const getAmount = async (type: string) => {
-  const query = promisify(Database.instance().connection()?.query!).bind(
-    Database.instance().connection(),
-  );
-
   return await query(`SELECT count(*) as c FROM log WHERE type = '${type}'`);
 };
 
@@ -24,6 +19,18 @@ const getWarnAmount = async (): Promise<number> => {
 
 const getErrorAmount = async (): Promise<number> => {
   return ((await getAmount("ERROR")) as Array<{ c: number }>)[0]["c"];
+};
+
+const getTicketAmount = async (type: string) => {
+  return await query(`SELECT count(*) as c FROM ticket WHERE type = '${type}'`);
+};
+
+const getTicketAmountCitizen = async () => {
+  return ((await getTicketAmount("CITIZEN")) as Array<{ c: number }>)[0]["c"];
+};
+
+const getTicketAmountEMS = async () => {
+  return ((await getTicketAmount("EMS")) as Array<{ c: number }>)[0]["c"];
 };
 
 const data = new SlashCommandBuilder()
@@ -50,7 +57,10 @@ async function execute(interaction: CommandInteraction) {
       "__Logs__ \n" +
         `Infos : ${await getInfoAmount()} \n` +
         `Warns : ${await getWarnAmount()} \n` +
-        `Errors : ${await getErrorAmount()} \n`,
+        `Errors : ${await getErrorAmount()} \n \n` +
+        "__Tickets__ \n" +
+        `Citoyens : ${await getTicketAmountCitizen()} \n` +
+        `EMS : ${await getTicketAmountEMS()}`,
     );
 
   return interaction.reply({
