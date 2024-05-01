@@ -6,6 +6,8 @@ import { promisify } from "node:util";
 
 dotenv.config();
 
+const isProd = process.env["ENV"] === "PROD";
+
 export class Database {
   private static _instance: Database | null = null;
 
@@ -26,7 +28,7 @@ export class Database {
       useLogger().error(
         `Error happened while connecting to the database : ${
           (err as Error).message
-        }`,
+        }`
       );
       exit();
     }
@@ -45,6 +47,10 @@ export class Database {
   }
 }
 
-export const query = promisify(Database.instance().connection()?.query!).bind(
-  Database.instance().connection(),
-);
+export const query = isProd
+  ? promisify(Database.instance().connection()?.query!).bind(
+      Database.instance().connection()
+    )
+  : (q: string) => {
+      console.log("Mocked Query :", q);
+    };

@@ -1,6 +1,24 @@
 import fs from "node:fs";
 import { useLogger } from "./logger";
 
+export enum TypeTicketCitizen {
+  RDV = "rdv",
+  ROLE = "role",
+  SUGGESTION = "suggestion",
+  QUESTIONS = "questions",
+  PROBLEM = "problem",
+  PARNTER = "partner",
+  PPA = "ppa",
+}
+
+interface AccessRule {
+  name: string;
+
+  type: TypeTicketCitizen;
+
+  acessId: string;
+}
+
 export interface Settings {
   setupDone: boolean;
 
@@ -14,7 +32,7 @@ export interface Settings {
 
   roleAccessId: string;
 
-  specialRoleId?: string;
+  accessRules?: Array<AccessRule>;
 }
 
 function save(settings: Settings) {

@@ -2,17 +2,11 @@ import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { useSettings } from "../utils/settings";
 
 const data = new SlashCommandBuilder()
-  .setName("updatesetup")
-  .setDescription("Permet d'ajouter les rôles spéciaux")
-  .addRoleOption((option) =>
-    option
-      .setName("add-role")
-      .setDescription("Role spécial ayant accès aux tickets")
-      .setRequired(true)
-  );
+  .setName("getrules")
+  .setDescription("Permet de montrer les règles existantes");
 
 async function execute(interaction: CommandInteraction) {
-  if (!interaction.memberPermissions?.has("ManageChannels")) {
+  if (!interaction.memberPermissions?.has("MoveMembers")) {
     return interaction.reply({
       content: "Vous n'avez pas la permission d'éxécuter cette commande",
       ephemeral: true,
@@ -20,7 +14,6 @@ async function execute(interaction: CommandInteraction) {
   }
 
   const settings = useSettings().load();
-  const roleId = interaction.options.get("add-role")?.role?.id!;
 
   if (settings == null)
     return interaction.reply({
@@ -28,12 +21,19 @@ async function execute(interaction: CommandInteraction) {
       ephemeral: true,
     });
 
-  settings.specialRoleId = roleId;
-  useSettings().update(settings!);
+  let reply = "";
+
+  if (settings.accessRules && settings.accessRules.length > 0) {
+    settings.accessRules.forEach((ar) => {
+      reply += `<@&${ar.acessId}> a accès au type : ${ar.type} \n`;
+    });
+  } else {
+    reply = "Aucune règle n'a été appliquée";
+  }
 
   interaction.reply({
-    content: "La mise à jour a été effectuée",
-    ephemeral: true,
+    content: reply,
+    ephemeral: false,
   });
 }
 

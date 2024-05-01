@@ -7,7 +7,7 @@ import { Message } from "discord.js";
 import { GatewayIntentBits } from "discord.js";
 import { selectCitizen } from "./select_handlers/select-citizen";
 import { selectEms } from "./select_handlers/select-ems";
-import { useSettings } from "./utils/settings";
+import { TypeTicketCitizen, useSettings } from "./utils/settings";
 import { Database } from "./database";
 
 const client = new Client({
@@ -32,7 +32,7 @@ client.on("guildCreate", async (guild) => {
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isCommand()) {
     commands[interaction.commandName as keyof typeof commands].execute(
-      interaction,
+      interaction
     );
   } else if (interaction.isAnySelectMenu()) {
     if (interaction.customId === "citizen") {
@@ -48,7 +48,6 @@ client.on("messageCreate", async (message: Message<boolean>) => {
     if (!(message.author.id === "619832422766477327")) return;
 
     await deployCommands({ guildId: message.guild?.id! });
-    console.log(Database.instance().connection());
     await message.reply("Reloaded slash commands");
   }
 
@@ -57,18 +56,14 @@ client.on("messageCreate", async (message: Message<boolean>) => {
 
     if (settings == null || !settings.setupDone) return;
 
-    const isAllowed =
-      message.guild?.roles.cache
-        .find((r) => r.id === settings.roleAccessId)
-        ?.members.find((m) => m.id === message.author.id) ||
-      message.guild?.roles.cache
-        .find((r) => r.id === settings.specialRoleId)
-        ?.members.find((m) => m.id === message.author.id);
+    const isAllowed = message.guild?.roles.cache
+      .find((r) => r.id === settings.roleAccessId)
+      ?.members.find((m) => m.id === message.author.id);
 
     if (!isAllowed) {
       const answer = await message.reply({
         content:
-          "Vous n'avez pas la permission de fermer votre ticket, attendez que quelqu'un le fasse pour vous !",
+          "Vous n'avez pas la permission de fermer le ticket, attendez que quelqu'un le fasse pour vous !",
       });
       await message.delete();
       await sleep(5000);
@@ -81,7 +76,7 @@ client.on("messageCreate", async (message: Message<boolean>) => {
     useLogger().info(
       `User ${message.author.displayName} closed ticket ${
         (message.channel as TextChannel).name
-      }`,
+      }`
     );
     await message.channel.delete();
   }

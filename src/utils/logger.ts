@@ -1,15 +1,7 @@
-import { Database } from "../database";
+import { Database, query } from "../database";
 
 const insertLog = (type: string, msg: string) => {
-  Database.instance()
-    .connection()
-    ?.query(
-      "INSERT INTO log SET ?",
-      { type: type, message: msg },
-      function (error, results, fields) {
-        if (error) throw error;
-      },
-    );
+  query(`INSERT INTO log VALUES (null, null, '${type}', '${msg}')`);
 };
 
 export function useLogger() {
