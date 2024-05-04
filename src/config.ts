@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { exit } from "process";
 import { useLogger } from "./utils/logger";
+import { TypeTicketCitizen } from "./utils/settings";
 
 dotenv.config();
 
