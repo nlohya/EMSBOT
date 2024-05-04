@@ -1,4 +1,9 @@
-import { AnySelectMenuInteraction, inlineCode } from "discord.js";
+import {
+  AnySelectMenuInteraction,
+  OverwriteData,
+  PermissionOverwrites,
+  inlineCode,
+} from "discord.js";
 import { useLogger } from "../utils/logger";
 import { useSettings } from "../utils/settings";
 import { query } from "../database";
@@ -11,6 +16,8 @@ function reason(str: string) {
       return "Suggestion";
     case "rdv":
       return "Prise de rendez-vous";
+    case "ppa":
+      return "Test psychologique PPA";
     case "questions":
       return "Questions";
     case "problem":
@@ -25,7 +32,7 @@ function reason(str: string) {
 export const handle = async (interaction: AnySelectMenuInteraction) => {
   useLogger().info(
     `User ${interaction.user.username} opened a citizen ticket, type: ${interaction.values[0]}`,
-    "select-citizen.ts/#5",
+    "select-citizen.ts/#5"
   );
 
   const settings = useSettings().load();
@@ -41,72 +48,56 @@ export const handle = async (interaction: AnySelectMenuInteraction) => {
 
   let chanel = undefined;
 
-  if (settings.specialRoleId == undefined || interaction.values[0] !== "rdv") {
-    chanel = await interaction.guild?.channels.create({
-      name: `${interaction.values[0]}__${interaction.user.username}__ticket`,
-      parent: settings.categoryCitizen,
-      permissionOverwrites: [
-        {
-          id: interaction.guild.roles.cache.find((r) => r.name === "@everyone")
-            ?.id!,
-          deny: ["ViewChannel"],
-        },
-        {
-          id: interaction.user.id,
-          allow: ["ViewChannel"],
-        },
-        {
-          id: settings.roleAccessId,
-          allow: ["ViewChannel"],
-        },
-      ],
-    });
+  let additionnalPerms: Array<OverwriteData> = [];
 
-    await chanel?.send({
-      content: `<@&${settings.roleAccessId}>, le citoyen <@${
-        interaction.user.id
-      }> a ouvert un ticket pour la raison suivante : ${reason(
-        interaction.values[0],
-      )}, utilisez la commande ${inlineCode(".close")} pour fermer le ticket.`,
-    });
-  } else {
-    chanel = await interaction.guild?.channels.create({
-      name: `${interaction.values[0]}__${interaction.user.username}__ticket`,
-      parent: settings.categoryCitizen,
-      permissionOverwrites: [
-        {
-          id: interaction.guild.roles.cache.find((r) => r.name === "@everyone")
-            ?.id!,
-          deny: ["ViewChannel"],
-        },
-        {
-          id: interaction.user.id,
+  if (settings.accessRules) {
+    for (let ar of settings.accessRules) {
+      if (interaction.values[0] === ar.type) {
+        additionnalPerms.push({
+          id: ar.acessId.toString(),
           allow: ["ViewChannel"],
-        },
-        {
-          id: settings.roleAccessId,
-          allow: ["ViewChannel"],
-        },
-        {
-          id: settings.specialRoleId,
-          allow: ["ViewChannel"],
-        },
-      ],
-    });
-
-    await chanel?.send({
-      content: `<@&${settings.roleAccessId}>, <@&${
-        settings.specialRoleId
-      }>, le citoyen <@${
-        interaction.user.id
-      }> a ouvert un ticket pour la raison suivante : ${reason(
-        interaction.values[0],
-      )}, utilisez la commande ${inlineCode(".close")} pour fermer le ticket.`,
-    });
+        });
+      }
+    }
   }
 
+  chanel = await interaction.guild?.channels.create({
+    name: `${interaction.values[0]}__${interaction.user.username}__ticket`,
+    parent: settings.categoryCitizen,
+    permissionOverwrites: [
+      {
+        id: interaction.guild.roles.cache.find((r) => r.name === "@everyone")
+          ?.id!,
+        deny: ["ViewChannel"],
+      },
+      {
+        id: interaction.user.id,
+        allow: ["ViewChannel"],
+      },
+      {
+        id: settings.roleAccessId,
+        allow: ["ViewChannel"],
+      },
+      ...additionnalPerms,
+    ],
+  });
+
+  let rolesToPing = "";
+
+  additionnalPerms.forEach((ap) => {
+    rolesToPing += `<@&${ap.id}>, `;
+  });
+
+  await chanel?.send({
+    content: `<@&${settings.roleAccessId}>, ${rolesToPing} le citoyen <@${
+      interaction.user.id
+    }> a ouvert un ticket pour la raison suivante : ${inlineCode(
+      reason(interaction.values[0])
+    )}, utilisez la commande ${inlineCode(".close")} pour fermer le ticket.`,
+  });
+
   await query(
-    `INSERT INTO ticket VALUES (null, null, '${interaction.values[0]}', '${interaction.user.id}', 'CITIZEN')`,
+    `INSERT INTO ticket VALUES (null, null, '${interaction.values[0]}', '${interaction.user.id}', 'CITIZEN')`
   );
 
   return interaction.reply({

@@ -66,7 +66,7 @@ async function execute(interaction: CommandInteraction) {
         "https://cdn.discordapp.com/attachments/1227046138264162356/1227061733072310352/logohopital3.png?ex=6627094a&is=6614944a&hm=f640f54e007e0b8d5fef6da4a6834f00230e8e5a5b64d410c61b93d73967f813&",
     })
     .setDescription(
-      "🔖 · **Demande de rôles** \n *Pour les demandes de rôles* \n ⏳ · **Suggestions** \n *Pour toutes idées,ajouts,..., pour l'hôpital.* \n 🎯 · **Prise de rendez-vous** \n *Pour rencontrer la direction de l'hôpital ou le psychologue ou autre,...* \n ❓ · **Questions** \n *Pour toutes questions générales* \n ⚠️ · **Problèmes** \n *Pour toutes remontées, envers un EMS ou autre.* \n 🤝 · **Partenariats** \n *Pour une entreprise qui souhaiterait passer un accord avec les EMS.*"
+      "🔖 · **Demande de rôles** \n *Pour les demandes de rôles* \n ⏳ · **Suggestions** \n *Pour toutes idées,ajouts,..., pour l'hôpital.* \n 🎯 · **Prise de rendez-vous** \n *Pour rencontrer la direction de l'hôpital ou le psychologue ou autre,...* \n 🔫 · **PPA** \n *Pour passer votre test psychologique* \n ❓ · **Questions** \n *Pour toutes questions générales* \n ⚠️ · **Problèmes** \n *Pour toutes remontées, envers un EMS ou autre.* \n 🤝 · **Partenariats** \n *Pour une entreprise qui souhaiterait passer un accord avec les EMS.*"
     );
 
   const selectCitizen = new StringSelectMenuBuilder()
@@ -82,6 +82,7 @@ async function execute(interaction: CommandInteraction) {
       new StringSelectMenuOptionBuilder()
         .setLabel("🎯 · Prise de rendez-vous")
         .setValue("rdv"),
+      new StringSelectMenuOptionBuilder().setLabel("🔫 · PPA").setValue("ppa"),
       new StringSelectMenuOptionBuilder()
         .setLabel("❓ · Questions")
         .setValue("questions"),
