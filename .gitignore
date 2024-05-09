@@ -6,3 +6,5 @@ node_modules
 dist
 .idea
 /.idea
+config.cfg
+/config.cfg
