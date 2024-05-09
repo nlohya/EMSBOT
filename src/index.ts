@@ -56,9 +56,41 @@ client.on("messageCreate", async (message: Message<boolean>) => {
 
     if (settings == null || !settings.setupDone) return;
 
+    if (!(message.channel as TextChannel).name.includes("__ticket")) return;
+
+    const splittedChannelName = (message.channel as TextChannel).name.split(
+      "__"
+    );
+
+    const ticketType = splittedChannelName[0];
+
+    /*
     const isAllowed = message.guild?.roles.cache
       .find((r) => r.id === settings.roleAccessId)
       ?.members.find((m) => m.id === message.author.id);
+    */
+
+    let isAllowed = false;
+
+    if (
+      message.guild?.roles.cache
+        .find((r) => r.id === settings.roleAccessId)
+        ?.members.find((m) => m.id === message.author.id)
+    )
+      isAllowed = true;
+
+    if (settings.accessRules) {
+      settings.accessRules.forEach((ar) => {
+        if (ar.type === ticketType) {
+          if (
+            message.guild?.roles.cache
+              .find((r) => r.id === ar.acessId)
+              ?.members.find((m) => m.id === message.author.id)
+          )
+            isAllowed = true;
+        }
+      });
+    }
 
     if (!isAllowed) {
       const answer = await message.reply({
@@ -70,8 +102,6 @@ client.on("messageCreate", async (message: Message<boolean>) => {
       await answer.delete();
       return;
     }
-
-    if (!(message.channel as TextChannel).name.includes("__ticket")) return;
 
     useLogger().info(
       `User ${message.author.displayName} closed ticket ${
